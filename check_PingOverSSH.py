@@ -78,11 +78,20 @@ def pingMikroTik(args):
 	client = paramiko.SSHClient()
 	client.load_system_host_keys()
 	# https://iomarmochtar.wordpress.com/2014/11/08/error-remote-mikrotik-through-python-script/
+	# http://stackoverflow.com/questions/14274566/paramiko-protocol-error-expected-packet-ssh-msg-userauth-request-got-ssh-msg-s
 	client.connect(args.host,username=args.username,password=args.password, look_for_keys=False)
 	stdin, stdout, stderr = client.exec_command(pingcommand)
 	output = stdout.readlines()
 	print(output)
 	client.close()
+	getStatisticsMikrotik(output)
+
+def getStatisticsMikrotik(output):
+	for i, elem in enumerate(output):
+		if("sent=" in elem):
+			position = elem
+	print(position)
+	print(position.split()[0])
 
 def main():
 	print (parseArgs())
