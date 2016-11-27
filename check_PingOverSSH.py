@@ -60,7 +60,29 @@ def pingOpenWRT(args):
 	print ('rt_min:', rt_min)
 	print ('rt_avg:', rt_avg)
 	print ('rt_max:', rt_max)
-	client.close
+	# ToDo: Standardabweichung
+	client.close()
+
+def pingMikroTik(args):
+	pingcommandlist = []
+	pingcommandlist.append("/ping")
+	pingcommandlist.append(" count="+args.count)
+	if(args.interface):
+		pingcommandlist.append(" interface="+args.interface)
+	if(args.ttl):
+		pingcommandlist.append(" ttl="+args.ttl)
+	pingcommandlist.append(" "+args.destination)
+	pingcommand = "".join(pingcommandlist)
+	print(pingcommand)
+#	pingcommand = "ping count=10 interface=ether05 ttl=1 44.224.36.161"
+	client = paramiko.SSHClient()
+	client.load_system_host_keys()
+	# https://iomarmochtar.wordpress.com/2014/11/08/error-remote-mikrotik-through-python-script/
+	client.connect(args.host,username=args.username,password=args.password, look_for_keys=False)
+	stdin, stdout, stderr = client.exec_command(pingcommand)
+	output = stdout.readlines()
+	print(output)
+	client.close()
 
 def main():
 	print (parseArgs())
@@ -70,6 +92,8 @@ def main():
 	print(args.os)
 	if(args.os == "openwrt"):
 		pingOpenWRT(args)
+	elif(args.os == "mikrotik"):
+		pingMikroTik(args)
 
 
 
